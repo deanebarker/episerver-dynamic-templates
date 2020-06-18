@@ -49,7 +49,7 @@ All three options can be used simultaneously. You might have all content of a sp
 
 EDT works on two underlying architectural principles.
 
-**"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means they show things from the page on which they are currently being displayed. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
+**"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means they show things from the page on which they are currently being displayed. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed. Put another way, the "content" of the block is a _command_ which effective tells the block to retrieve and display a property from the rendering page.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
 
 **Delegation of the Template Property:** The template property that you add in step 6 above will "delegate" its value if it has no value of its own. If there are no blocks in it (or if it's `null`), that property will go looking for a `TemplateBlock` named for the page type in the "Templates" folder. If it finds one, the property will return the `Elements` property from that block as its own value. So, every page that doesn't provide a value for their template property will "fallback" to central template, which is the entire point of templating.
 
@@ -100,8 +100,19 @@ You can use those two properties to "pass-through" content from the rendering pa
 Here here are some properties which are displayed in the UI:
 
 * `ShowIf`: A template expression that should return true/false (example: `PageCreated | days_ago > 2`). The result of this will be surfaced in the `Show` property which should be used in the block controller to show or hide the block entirely.
-* `Style`: A set of CSS style rules. You can write one per line, and they'll be rolled up and formatted in the `StyleOuput` property.
-* `ClassName`: A CSS classname. This might be used in the view, depending on the element.
-* `BoilerplateOutput`: Default content to show when the template is being used. If provided, the view for this block should use this when `IsBoilerplate` returns true.
+* `Style`: A set of CSS style rules. You can write one per line, and they'll be rolled up and formatted in the `StyleOuput` property. It's up to the view to decide where to use this.
+* `ClassName`: A CSS classname. This might be used in the view, depending on the element. It's up to the view to decide where to use this.
+* `BoilerplateOutput`: Default content to show when the template is being used. If provided, the view for this block should use this when `IsBoilerplate` returns true. It's up to the view to decide where to use this.
 
 Your specific block will likely provide additional properties, specific to whatever it is (i.e. `Align` for the `ImageElementBlock`).
+
+## Where EDT Functionality Comes From
+
+When considering EDT, there are multiple axes on which functionality can grow.
+
+1. **The number and types of elements.** For the POC, four elements were created. There are clearly dozens more which could exist. This is becomes an exercise in codifying design patterns.
+2. **The configurability of elements.** Each element is a UI and logic puzzle to determine the best way to codifify all it different permutations as an Episerver block. For each element, there exists an ideal balance between simplicity and flexibility. The trick is finding it.
+3. **The variables injected into the template context.** For the POC, the only variables injected are the properties of the rendering page. However, other variables could be injected: the properties of the block itself, some data from the page's ancestors, the username of the active user, a list of the groups they belong to, the data from the `HttpRequest` object, etc.
+4. **The custom functions injected into the template context.** For the POC, there are four custom functions: `upper`, `lower`, `format`, and `days_ago`. (It's worth noting that Fluid seems to support [the functions from Liquid](https://shopify.github.io/liquid/) as well.) There are dozens of Episerver-specific functions, tags, and blocks which could be injected into Fluid.
+
+The last two items speak to a larger point: if Fluid has a future as a templating option for Episerver (at any level), there needs to be some conventions developed so that users can expect that certain variables, filters, tags, and blocks are generally available in all Fluid contexts. There needs to be a "canonical Fluid context" which users can generally count on.
