@@ -28,14 +28,14 @@ https://www.dropbox.com/s/5xe82trve10nlwg/dev-demo-video.mp4?dl=0
 2. Copy the `DynamicTemplates` folder to the root of Alloy
 3. Copy the `Views/Elements` folder to the `Views` folder of Alloy
 4. Install Fluid: `install-package Fluid.Core -Prerelease`
-5. It should recompile and run just fine (if it doesn't...well, fix it)
-6. Add a property called `Template` to `ArticlePage` (or whatever page you like). A sample is in `DynamicTemplates/sample-template-property.txt`. (Note: there's nothing magic about the name "Template." Call it whatever you want.)
+5. It should recompile and run just fine (if it doesn't...well, _fix it_)
+6. Add a property called `Template` to `ArticlePage` (or whatever page you like). This is just a `ContentArea` with some extra code in the getter. A sample is in `DynamicTemplates/sample-template-property.txt`. (Note: there's nothing magic about the name "Template." Call it whatever you want. In the text below, when I refer to "the `Template` property, I mean this property, whatever you called it).
 7. Delete all the page-specific stuff in the `ArticlePage` view (there's some nav menu stuff you should leave -- start with the `H1` and delete down from there). Replace it with the `Template` property you created in step 6: `@Html.PropertyFor(x => x.CurrentPage.Template)`
 8. Recompile and start up the site
 
 ## How to Template
 
-Once a property on a page type is "enabled" for templating (by (1) adding a `Template` property as described in step 6 above, and (2) outputting _just_ that property in the view), you have three ways to template that object. These three options are in decreasing order of specificity.
+Once a page type is "enabled" for templating (by (1) adding a `Template` property as described in step 6 above, and (2) outputting _just_ that property in the view), you have three options to template that object. These three options are in listed decreasing order of specificity.
 
 1. You can add blocks directly to the `Template` property on a specific content object. This is really no different than how Episerver has always worked. The only enhancement might be to use some of the "pass-through" blocks as described below. This is specific to _this_ content object, and it doesn't gain you any efficiencies -- it's not really "templating" because you'd need to do it for every single object, which defeats the purpose (but can be handy on an exception basis).
 2. You can create a `TemplateBlock` block, add some blocks to that, then drag it into the `Template` property. This is a little better because you can change that `TemplateBlock` and it will change the output of every page linked to it. You could link every content object of a particular type to a single `TemplateBlock` and centrally control their output from there. But this is still not ideal because you'd need to remember to add this to every property, which can be tedious and prone to error.
