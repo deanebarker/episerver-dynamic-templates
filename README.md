@@ -17,3 +17,13 @@ Installation of demo:
 7. Delete all the page-specific stuff in the `ArticlePage` view (there's some nav menu stuff you should leave -- start with the `H1` and delete down from there). Replace it with the `Template` property you created in step 6: `@Html.PropertyFor(x => x.CurrentPage.Template)`
 8. Recompile and start up the site
 9. You can add elements to the `Template` property on a specific page. Or you can create a `TemplateBlock` (anywhere), add elements to that, and drag it into the `Template` property. Or -- and this is really the whole point -- you can create a top-level assets folder called `Templates` and put a `TemplateBlock` in there, named for the page type name (so, "ArticlePage," for example). If there is no value in the `Template` property, it will find that template and use it.
+
+## How It Works
+
+EDT works on two basic architectural principles.
+
+**"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means they show things from the page on which they are currently being displayed. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
+
+**Delegation of the Template Property:** The template property that you add in step 6 above, will "delegate" its value if it has no value of its own. If there are no blocks in it (or if it's `null`), that property will go looking for a `TemplateBlock` named for the page type in the "Templates" folder. If it finds it, it will return the `Elements` property from that block as its own value. So, every page type that doesn't provide a value for their template will "fallback" to central template.
+
+Those two basic principles are what make EDT work.
