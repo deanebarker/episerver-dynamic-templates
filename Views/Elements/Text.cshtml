@@ -1,0 +1,20 @@
+﻿@model DeaneBarker.DynamicTemplates.Models.Elements.TextElementBlockViewModel
+
+@if (Model.CurrentBlock.IsBoilerplate)
+{
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.In dignissim fermentum magna,
+    commodo mattis risus semper non. Fusce placerat massa id quam sagittis sollicitudin.Vivamus
+    purus ipsum, egestas quis convallis nec, efficitur ac ipsum. Pellentesque accumsan sollicitudin
+    lorem, sed mollis velit blandit id. Class aptent taciti sociosqu ad litora torquent per conubia nostra,
+    per inceptos himenaeos. Quisque ac tincidunt felis. Morbi tristique nibh et diam interdum, in
+    sollicitudin lorem fringilla.Proin imperdiet nisi quis magna cursus, quis lacinia augue pretium.
+    Fusce tincidunt quam eu neque ultrices, eget malesuada magna gravida.Donec blandit consequat arcu
+    in rutrum.Donec et sodales lacus, quis bibendum est. Phasellus ut turpis non nunc finibus fringilla.
+    Donec ut mi et est dignissim imperdiet.Suspendisse malesuada malesuada enim quis iaculis.</p>
+}
+else
+{
+    <div class="@Model.CurrentBlock.ClassName" style="@Model.CurrentBlock.StyleOutput">
+        @Html.Raw(Model.Text)
+    </div>
+}

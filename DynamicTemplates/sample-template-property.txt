@@ -1,0 +1,13 @@
+﻿[Display(
+    GroupName = SystemTabNames.Settings,
+    Order = 320)]
+public virtual ContentArea Template
+{
+    get
+    {
+        var localValue = this.GetPropertyValue(p => p.Template);
+        var locator = ServiceLocator.Current.GetInstance<IDynamicTemplateResolver>();
+        return locator.GetTemplate(localValue, this);
+    }
+    set { this.SetPropertyValue(p => p.Template, value); }
+}
