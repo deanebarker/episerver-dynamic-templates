@@ -1,26 +1,51 @@
 # Episerver Dynamic Templates
 
-A method of allowing editorial control over object rendering in Episerver.
+This code offers a method of allowing editorial control over object rendering in Episerver. It's referred to as "templating" because a single output configuration can be used by many different content objects -- it can be bound to a particular content type, a defined set of content objects, or even a single content object. If the output configuration (the "template") changes, the output of all content objects using it will also change.
 
-Demo video:
+In Episerver, there has traditionally only been one type of templating --
+
+**Developer Templating:** This is done in Razor, from files, using HTML markup and C#. It's low-level and above the skill level of most editors. It normally requires a code deployment (though there are [ways around that](https://github.com/davidknipe/VirtualTemplateSystem)), and it's prone to catastrophic problems if done poorly.
+
+EDT offers a new type of templating _in addition_ to developer templating:
+
+**Editorial Templating:** This is done from the Episerver interface, by choosing and configuring blocks and optionally using some lightweight markup and logical templating code. It requires no development and no deployment.
+
+The two styles can co-exist and work together. Developers can template the "surround" -- the outer layout, which includes the navigation and deeper integration -- while allowing editors and front-end developers a "sandbox" in which they can control the output of a specific object on the page.
+
+## Status
+
+Ridiculously alpha. This is a promising prototype, at best.
+
+## Demo Video
+
+This video is about 11 minutes. If you're not a developer or don't care how it's installed, skip ahead to 2:40. 
 
 https://www.dropbox.com/s/5xe82trve10nlwg/dev-demo-video.mp4?dl=0
 
-Installation of demo:
+## Installation of the Demo
 
 1. Create a new Alloy site
 2. Copy the `DynamicTemplates` folder to the root of Alloy
 3. Copy the `Views/Elements` folder to the `Views` folder of Alloy
 4. Install Fluid: `install-package Fluid.Core -Prerelease`
-5. It should recompile and run just fine
-6. Add a property called `Template` to `ArticlePage` (or whatever page you like). A sample is in `DynamicTemplates/sample-template-property.txt`.
+5. It should recompile and run just fine (if it doesn't...well, fix it)
+6. Add a property called `Template` to `ArticlePage` (or whatever page you like). A sample is in `DynamicTemplates/sample-template-property.txt`. (Note: there's nothing magic about the name "Template." Call it whatever you want.)
 7. Delete all the page-specific stuff in the `ArticlePage` view (there's some nav menu stuff you should leave -- start with the `H1` and delete down from there). Replace it with the `Template` property you created in step 6: `@Html.PropertyFor(x => x.CurrentPage.Template)`
 8. Recompile and start up the site
-9. You can add elements to the `Template` property on a specific page. Or you can create a `TemplateBlock` (anywhere), add elements to that, and drag it into the `Template` property. Or -- and this is really the whole point -- you can create a top-level assets folder called `Templates` and put a `TemplateBlock` in there, named for the page type name (so, "ArticlePage," for example). If there is no value in the `Template` property, it will find that template and use it.
+
+## How to Template
+
+Once a property on a page type is "enabled" for templating (by (1) adding a `Template` property as described in step 6 above, and (2) outputting _just_ that property in the view), you have three ways to template that object. These three options are in decreasing order of specificity.
+
+1. You can add blocks directly to the `Template` property on a specific content object. This is really no different than how Episerver has always worked. The only enhancement might be to use some of the "pass-through" blocks as described below. This is specific to _this_ content object, and it doesn't gain you any efficiencies -- it's not really "templating" because you'd need to do it for every single object, which defeats the purpose (but can be handy on an exception basis).
+2. You can create a `TemplateBlock` block, add some blocks to that, then drag it into the `Template` property. This is a little better because you can change that `TemplateBlock` and it will change the output of every page linked to it. You could link every content object of a particular type to a single `TemplateBlock` and centrally control their output from there. But this is still not ideal because you'd need to remember to add this to every property, which can be tedious and prone to error.
+3. You can leave the `Template` property blank. Then create a top-level folder called "Templates" in the asset panel, and create a `TemplateBlock` in that named for the page type it should be used for ("ArticlePage," for example). If the `Template` property on an object is empty, EDT will find the template for its type and use it. This allows you to designate a specific template to be used automatically for _all_ pages of a specific type, which will likely be the most common use case.
+
+All three options can be used simultaneously. You might have all content of a specific type use a default template (option #3 from above), but have a group of them linked to an alternate template (#2), and maybe one weird one that's uniquely templated #1.
 
 ## How It Works: Theory
 
-EDT works on two basic architectural principles.
+EDT works on two underlying architectural principles.
 
 **"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means they show things from the page on which they are currently being displayed. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
 
@@ -51,3 +76,30 @@ Blocks rendered from this `Template` property (wherever they came from), will op
 Inside your block view model, you can access `TemplatingService` which provides methods for processing templates which are injected with content from the rendering page.
 
 >**TODO:** The current default implementation of `TemplatingService` uses Fluid as a template engine. This is fine, but it exposes Fluid in the interface (some methods take in a `TemplateContext`, which is Fluid-specific). This defeats the entire purpose of DI. The external interface should be engine-agnostic, so it can be injected with some other implementation.
+
+## Creating a New Element Block
+
+First of all, do you need to create a new type of block? Remember that _all blocks work the same way they always have_. So if you just want to output some content in a template, you can use the default `EditorialBlock` that comes with Alloy. A `TemplateBlock` or `Template` property is basically just a `ContentArea`, and it will output any block as its default behavior.
+
+But an "element block" can be said to be a block that extends from `TemplateElementBaseBlock`. By extending from that base, you gain some extra capabilities:
+
+* `RenderingPageLink`: A `ContentLink` of the page on which the block is embedded
+* `RenderingPageData`: A `PageData` of the page on which the block is embedded
+
+You can use those two properties to "pass-through" content from the rendering page in your view model logic.
+
+* `Process`: A method that will execute a string against the `TemplatingService` which has been injected with variables representing the properties of the rendering page
+* `Show:` A boolean from the evaluation of the `ShowIf` expression that represents whether block should be displayed
+* `StyleOutput`: A formatted CSS string from the `Style` property below
+* `IsBoilerplate`: A boolean that returns `true` if the block is (1) being shown in Edit Mode, and (2) appears to be embedded on the home page. This can be used in our view to return "boilerplate" content when the template itself is being viewed (i.e. "Lorem Ipsum").
+
+>**TODO:** Clearly, this won't work for templates _actually_ executing on the home page. For now, we're going to just accept this as an edge case.
+
+Here here are some properties which are displayed in the UI:
+
+* `ShowIf`: A template expression that should return true/false (example: `PageCreated | days_ago > 2`). The result of this will be surfaced in the `Show` property which should be used in the block controller to show or hide the block entirely.
+* `Style`: A set of CSS style rules. You can write one per line, and they'll be rolled up and formatted in the `StyleOuput` property.
+* `ClassName`: A CSS classname. This might be used in the view, depending on the element.
+* `BoilerplateOutput`: Default content to show when the template is being used. If provided, the view for this block should use this when `IsBoilerplate` returns true.
+
+Your specific block will likely provide additional properties, specific to whatever it is (i.e. `Align` for the `ImageElementBlock`).
