@@ -29,7 +29,7 @@ https://www.dropbox.com/s/5xe82trve10nlwg/dev-demo-video.mp4?dl=0
 3. Copy the `Views/Elements` folder to the `Views` folder of Alloy
 4. Install Fluid: `install-package Fluid.Core -Prerelease`
 5. It should recompile and run just fine (if it doesn't...well, _fix it_)
-6. Add a property called `Template` to `ArticlePage` (or whatever page you like). This is just a `ContentArea` with some extra code in the getter. A sample is in `DynamicTemplates/sample-template-property.txt`. (Note: there's nothing magic about the name "Template." Call it whatever you want. In the text below, when I refer to "the `Template` property," I mean this property, whatever you called it.)
+6. Add a property called `Template` to `ArticlePage` (or whatever page you like). This is just a `ContentArea` with some extra code in the getter. A sample is in `DynamicTemplates/sample-template-property.txt`. (Note: there's nothing magic about the name "Template." Call it whatever you want. When I refer to "the `Template` property" below, I mean this property, whatever you called it.)
 7. Delete all the page-specific stuff in the `ArticlePage` view (there's some nav menu stuff you should leave -- start with the `H1` and delete down from there). Replace it with the `Template` property you created in step 6: `@Html.PropertyFor(x => x.CurrentPage.Template)`
 8. Recompile and start up the site
 
@@ -43,7 +43,7 @@ Once a page type is "enabled" for templating by (1) adding a `Template` property
 
 >**NOTE:** The template resolution is injected via the `DynamicTemplateResolver`. You're welcome to implement your own service to use another method. Also, the default implementation has a static property called `TEMPLATE_FOLDER_NAME` that you can change if you want to use something different.
 
-All three options can be used simultaneously. You might have all content of a specific type use a default template (option #3 from above), but have a group of them linked to an alternate template (#2), and maybe one weird one that's uniquely templated #1.
+All three options can be used simultaneously. You might have all content of a specific type use a default template (option #3 from above), but have a group of them linked to an alternate template (#2), and maybe one weird one that's uniquely templated (#1).
 
 ## How It Works: Theory
 
@@ -63,13 +63,13 @@ There's a third principle which isn't really "architectural," but just a feature
 
 Using the demo created above, here is a step-by-step description of what's happening when a page is being rendered.
 
-When rendering gets to the view of `ArticlePage` it encounters the `Template` property.
+When execution gets to the view of `ArticlePage` it encounters the `Template` property.
 
 Retrieving that property value will happen normally, if the property has a value. That value could be actual blocks, or it could be a `TemplateBlock` which contains an `Elements` content area. The view for `TemplateBlock` just renders the `Elements` content area...which is a roundabout way of saying this will render exactly how you expect -- the `TemplateBlock` will recurse down through its blocks and render each one.
 
-If the `Template` property of the page has no value, it will use the `IDynamicTemplateResolver` service to try and find a template (the logic for evaluating the local value is bundled up in here too). The default service implementation will look for a "Templates" folder in the root of the asset tree. If it finds that, it will look in it for a `TemplateBlock` object with a name that matches the page type name ("ArticlePage" in this case). If it finds that, the service will return the `Elements` property which will then be returned from the `Template` property of the page, as if it was its own.
+If the `Template` property of the page has no value, it will use the `IDynamicTemplateResolver` service to try and find a template (the logic for evaluating the local value is bundled up in here too). The default service implementation will look for a "Templates" folder in the root of the asset tree. If it finds that, it will look in it for a `TemplateBlock` object with a name that matches the page type name ("ArticlePage" in this case). If it finds that, the service will return its `Elements` property which will then be returned from the `Template` property of the page, as if it was its own.
 
->**TODO:** The logic currently contained in the sample template property should probably be encapsulated in a custom property, rather than a generic `ContentArea`.
+>**TODO:** The logic currently contained in the sample template property should probably be encapsulated in a custom property, rather than a generic `ContentArea`. If this happened, we might be able to create new page types from the UI and template them, which would be an fantastic increase in functionality.
 
 Blocks rendered from this `Template` property (wherever they came from), will operate normally. However, so-called "element blocks" are those which extend from `TemplateElementBaseBlock`. That base class has some utility properties for `RenderingPageLink` and `RenderingPageData` that will give your code access to the page that is rendering -- so the page that block is being displayed on during that specific request. These properties can be used in your view models to power logic that decides where content should come from.
 
