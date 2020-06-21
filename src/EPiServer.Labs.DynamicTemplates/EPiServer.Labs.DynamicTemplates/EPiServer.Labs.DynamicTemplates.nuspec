@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>EPiServer.Labs.DynamicTemplates</id>
+    <version>$version$</version>
+    <title>Dynamic Templates for Episerver</title>
+    <authors>Episerver, Deane Barker</authors>
+    <owners>Episerver</owners>
+    <projectUrl>https://github.com/deanebarker/episerver-dynamic-templates</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Dynamic Templates lets editors easily manage templates for Episerver</description>
+    <tags>Episerver templates</tags>
+  </metadata>
+  <files>
+    <file src="web.config.transform" target="content\" />
+    <file src="modules\_protected\EPiServer.Labs.DynamicTemplates\**\*" target="content\modules\_protected\EPiServer.Labs.DynamicTemplates\" />
+  </files>
+</package>

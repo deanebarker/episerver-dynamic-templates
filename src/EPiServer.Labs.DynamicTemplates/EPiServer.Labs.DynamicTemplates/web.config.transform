@@ -1,0 +1,7 @@
+<configuration>
+    <episerver.shell>
+        <protectedModules>
+            <add name="EPiServer.Labs.DynamicTemplates" />
+        </protectedModules>
+    </episerver.shell>
+</configuration>

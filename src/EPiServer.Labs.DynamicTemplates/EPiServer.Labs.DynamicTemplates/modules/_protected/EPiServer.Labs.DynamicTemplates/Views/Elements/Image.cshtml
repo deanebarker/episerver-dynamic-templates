@@ -1,0 +1,53 @@
+﻿@model DeaneBarker.DynamicTemplates.Models.Elements.ImageElementBlockViewModel
+@{ 
+    // Figure out the URL
+    var url = Model.ImageUrl;
+    if (Model.CurrentBlock.IsBoilerplate)
+    {
+        if (!string.IsNullOrWhiteSpace(Model.CurrentBlock.BoilerplateOutput))
+        {
+            url = Model.CurrentBlock.BoilerplateOutput;
+        }
+
+        var size = "728x90";
+        if (!string.IsNullOrWhiteSpace(Model.CurrentBlock.Align))
+        {
+            size = "300x300";
+        }
+
+        url = string.Concat("https://via.placeholder.com/", size, ".png?text=Image+Placeholder");
+    }
+
+    // Figure out the styles
+    var rules = new Dictionary<string, string>();
+    if (!string.IsNullOrWhiteSpace(Model.CurrentBlock.Align))
+    {
+        rules["float"] = Model.CurrentBlock.Align.ToLower();
+        rules["max-width"] = "50%";
+    }
+    else
+    {
+        rules["display"] = "block";
+        rules["margin"] = "auto";
+    }
+
+    if (Model.CurrentBlock.Align == "right")
+    {
+        rules["margin"] = "0 0 1em 1em";
+    }
+
+    if (Model.CurrentBlock.Align == "left")
+    {
+        rules["margin"] = "0 1em 1em 0";
+    }
+
+    var styles = string.Join(string.Empty, rules.Select(r => string.Concat(r.Key, ": ", r.Value, "; ")));
+}
+
+@if (string.IsNullOrWhiteSpace(url))
+{
+    return;
+}
+
+<img src="@url" class="@Model.CurrentBlock.ClassName" style="@styles @Model.CurrentBlock.StyleOutput"/>
+

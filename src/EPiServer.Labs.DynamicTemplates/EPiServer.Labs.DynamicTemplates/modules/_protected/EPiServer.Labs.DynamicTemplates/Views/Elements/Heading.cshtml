@@ -1,0 +1,14 @@
+﻿@model DeaneBarker.DynamicTemplates.Models.Elements.HeadingElementBlockViewModel
+
+@{  
+    // Set the default tag here
+    var tag = Model.CurrentBlock.Tag ?? "h1";
+
+    // Set the output
+    var output = Model.CurrentBlock.IsBoilerplate ? "Heading" : Model.Text;
+}
+
+
+@Html.Raw(string.Concat("<", tag, " class=\"", Model.CurrentBlock.ClassName, "\" style=\"", Model.CurrentBlock.StyleOutput, "\">"))
+@Html.Raw(output)
+@Html.Raw(string.Concat("</", tag, ">"))
