@@ -1,5 +1,7 @@
 # Episerver Dynamic Templates
 
+(Note: the name "Episerver Dynamic Templates" is _not_ official, and might be a little pretentious. It's literally something I made up just so I had a way to refer to this when talking to people about it. Don't judge. -- Deane)
+
 This code offers a method of allowing editorial control over object rendering in Episerver. It's referred to as "templating" because a single output configuration can be used by many different content objects -- it can be bound to a particular content type, a defined set of content objects, or even a single content object. If the output configuration (the "template") changes, the output of all content objects using it will also change.
 
 In Episerver, there has traditionally only been one type of templating --
@@ -20,7 +22,7 @@ Ridiculously alpha. This is a promising prototype, at best.
 
 This video is about 11 minutes. If you're not a developer or don't care how it's installed, skip ahead to 2:40. 
 
-https://www.dropbox.com/s/5xe82trve10nlwg/dev-demo-video.mp4?dl=0
+https://www.dropbox.com/s/u17m0kc7yqfvdi9/dev-demo-video.mp4?dl=0
 
 ## Installation of the Demo
 
