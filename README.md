@@ -1,14 +1,14 @@
 # Episerver Dynamic Templates
 
-(Note: the name "Episerver Dynamic Templates" is _not_ official, and might be a little pretentious. It's literally something I made up just so I had a way to refer to this when talking to people about it. Don't judge. -- Deane)
+_(Note: the name "Episerver Dynamic Templates" is not official, and might be a little pretentious. It's literally something I made up just so I had a way to refer to this when talking to people about it. Don't judge. -- Deane)_
 
-This code offers a method of allowing editorial control over object rendering in Episerver. It's referred to as "templating" because a single output configuration can be used by many different content objects -- it can be bound to a particular content type, a defined set of content objects, or even a single content object. If the output configuration (the "template") changes, the output of all content objects using it will also change.
+his code offers a method of allowing editorial control over object templating in Episerver. It's referred to as "templating" because a single output configuration can be used by many different content objects -- it can be bound to a particular content type, a defined set of content objects, or even a single content object. If the output configuration (the "template") changes, the output of all content objects using it will also change.
 
 In Episerver, there has traditionally only been one type of templating --
 
 **Developer Templating:** This is done in Razor, from files, using HTML markup and C#. It's low-level and above the skill level of most editors. It normally requires a code deployment (though there are [ways around that](https://github.com/davidknipe/VirtualTemplateSystem)), and it's prone to catastrophic problems if done poorly.
 
-EDT offers a new type of templating _in addition_ to developer templating:
+EDT (this library) offers a new type of templating _in addition_ to developer templating:
 
 **Editorial Templating:** This is done from the Episerver interface, by choosing and configuring blocks and optionally using some lightweight markup and logical templating code. It requires no development and no deployment.
 
@@ -40,7 +40,7 @@ https://www.dropbox.com/s/u17m0kc7yqfvdi9/dev-demo-video.mp4?dl=0
 Once a page type is "enabled" for templating by (1) adding a `Template` property as described in step 6 above, and (2) outputting _just_ that property in the view), you have three options to template that object. These three options are in listed decreasing order of specificity.
 
 1. You can add blocks directly to the `Template` property on a specific content object. This is really no different than how Episerver has always worked. The only enhancement might be to use some of the "pass-through" blocks as described below. This is specific to _this_ content object, and it doesn't gain you any efficiencies -- it's not really "templating" because you'd need to do it for every single object, which defeats the purpose (but can be handy on an exception basis).
-2. You can create a `TemplateBlock` block, add some blocks to that, then drag it into the `Template` property. This is a little better because you can change that `TemplateBlock` and it will change the output of every page linked to it. You could link every content object of a particular type to a single `TemplateBlock` and centrally control their output. But this is still not ideal because you'd need to remember to add this to every property, which can be tedious and prone to error.
+2. You can create a `TemplateBlock` block, add some blocks to that, then drag it into the `Template` property. This is a little better because you can change that `TemplateBlock` and it will change the output of every page linked to it. You could link every content object of a particular type to a single `TemplateBlock` and centrally control their layout. But this is still not ideal because you'd need to remember to add this to every property, which can be tedious and prone to error.
 3. You can leave the `Template` property blank. Then create a top-level folder called "Templates" in the asset panel, and create a `TemplateBlock` in that folder named for the page type it should be used for ("ArticlePage," for example). If the `Template` property on an object is empty, EDT will find the template for its type and use it. This allows you to designate a specific template to be used automatically for _all_ pages of a specific type, which will likely be the most common use case.
 
 >**NOTE:** The template resolution is injected via the `DynamicTemplateResolver`. You're welcome to implement your own service to use another method. Also, the default implementation has a static property called `TEMPLATE_FOLDER_NAME` that you can change if you want to use something different.
@@ -51,7 +51,7 @@ All three options can be used simultaneously. You might have all content of a sp
 
 EDT works on two underlying architectural principles.
 
-**"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means they show things from the page on which they are currently being displayed. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed. Put another way, the "content" of the block is a _command_ which effectively tells the block to retrieve and display a property from the rendering page.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
+**"Pass-Through" Blocks:** The "element" blocks operate on the principle of "passing-through" content properties from the rendering page, which means that when they are left blank at their defaults, they show content _from the page on which they are currently being displayed_. You could embed the same `HeadingElementBlock` on two different pages, and it would display different things, because at its default, it just "passes-through" the `Name` of the page on which it's being displayed. Put another way, the "content" of the block is a _command_ which effectively tells the block to retrieve and display a property from the rendering page.  These blocks extend from `TemplateElementBaseBlock` which provides utility methods to find data from the rendering page.
 
 **Delegation of the Template Property:** The template property that you add in step 6 above will "delegate" its value if it has no value of its own. If there are no blocks in it (or if it's `null`), that property will go looking for a `TemplateBlock` named for the page type in the "Templates" folder. If it finds one, the property will return the `Elements` property from that block as its own value. So, every page that doesn't provide a value for their template property will "fallback" to central template, which is the entire point of templating.
 
